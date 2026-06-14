@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notebook</title>
+<link rel="stylesheet" href="tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --color-background-primary:#fff;
+  --color-background-secondary:#f5f5f3;
+  --color-text-primary:#1a1a1a;
+  --color-text-secondary:#555;
+  --color-text-tertiary:#999;
+  --color-border-tertiary:rgba(0,0,0,.12);
+  --color-border-secondary:rgba(0,0,0,.2);
+  --color-text-danger:#c0392b;
+  --font-sans:system-ui,-apple-system,sans-serif;
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --color-background-primary:#1e1e1e;
+  --color-background-secondary:#2a2a2a;
+  --color-text-primary:#f0f0f0;
+  --color-text-secondary:#aaa;
+  --color-text-tertiary:#666;
+  --color-border-tertiary:rgba(255,255,255,.1);
+  --color-border-secondary:rgba(255,255,255,.2);
+}}
+body{font-family:var(--font-sans);background:var(--color-background-secondary);display:flex;align-items:stretch;height:100vh;margin:0;padding:0;overflow:hidden}
+#app{display:flex;height:100vh;width:100%;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary);position:relative}
+#sidebar{width:230px;border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;background:var(--color-background-secondary);flex-shrink:0}
+#sidebar-header{padding:14px 14px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.hdr-row{display:flex;align-items:center;gap:6px;margin-top:10px}
+#new-note-btn{flex:1;padding:7px;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+#new-note-btn:hover{background:var(--color-background-primary)}
+#cfg-btn{background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 8px;cursor:pointer;color:var(--color-text-tertiary);font-size:14px;flex-shrink:0}
+#cfg-btn:hover{color:var(--color-text-primary)}
+#search-wrap{margin:10px 10px 6px;display:flex;align-items:center;gap:6px;padding:6px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary)}
+#search-input{border:none;background:transparent;font-size:13px;color:var(--color-text-primary);outline:none;flex:1}
+#notes-list{flex:1;overflow-y:auto;padding:6px}
+.note-item{padding:9px 10px;border-radius:var(--border-radius-md);cursor:pointer;margin-bottom:2px;border:0.5px solid transparent}
+.note-item:hover{background:var(--color-background-primary)}
+.note-item.active{background:var(--color-background-primary);border-color:var(--color-border-secondary)}
+.ni-title{font-size:13px;font-weight:500;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ni-preview{font-size:12px;color:var(--color-text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.ni-date{font-size:11px;color:var(--color-text-tertiary);margin-top:3px}
+.empty-state{text-align:center;padding:24px 12px;color:var(--color-text-tertiary);font-size:13px}
+#editor-pane{flex:1;display:flex;flex-direction:column;min-width:0}
+#editor-toolbar{padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:6px}
+#note-title-input{flex:1;border:none;background:transparent;font-size:15px;font-weight:500;color:var(--color-text-primary);outline:none}
+#delete-btn{background:transparent;border:none;cursor:pointer;color:var(--color-text-tertiary);font-size:16px;padding:4px;border-radius:var(--border-radius-md)}
+#delete-btn:hover{color:var(--color-text-danger)}
+#format-bar{padding:6px 14px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.fmt-btn{background:transparent;border:0.5px solid transparent;cursor:pointer;color:var(--color-text-secondary);font-size:14px;padding:4px 7px;border-radius:var(--border-radius-md);font-family:var(--font-sans)}
+.fmt-btn:hover{background:var(--color-background-secondary)}
+.vsep{width:0.5px;height:18px;background:var(--color-border-tertiary);margin:0 4px}
+#note-body{flex:1;padding:16px;font-size:14px;line-height:1.7;color:var(--color-text-primary);border:none;outline:none;background:transparent;font-family:var(--font-sans);overflow-y:auto}
+#status-bar{padding:5px 14px;border-top:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
+#status-dot{width:7px;height:7px;border-radius:50%;background:var(--color-text-tertiary);display:inline-block;margin-right:6px;transition:background .3s}
+#status-dot.ok{background:#2ecc71}
+#status-dot.err{background:#e74c3c}
+#status-dot.saving{background:#f39c12}
+#status-msg{font-size:11px;color:var(--color-text-tertiary)}
+#word-count{font-size:11px;color:var(--color-text-tertiary)}
+#no-note{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--color-text-tertiary);font-size:14px;gap:10px}
+#no-note i{font-size:36px;opacity:.4}
+#modal-backdrop{display:none;position:absolute;inset:0;background:rgba(0,0,0,.35);z-index:50;align-items:center;justify-content:center;border-radius:var(--border-radius-lg)}
+#modal-backdrop.open{display:flex}
+#modal-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:20px;width:320px}
+#modal-card h3{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--color-text-primary)}
+#modal-card p{font-size:12px;color:var(--color-text-secondary);margin-bottom:14px}
+#modal-card label{font-size:12px;font-weight:500;color:var(--color-text-primary);display:block;margin-bottom:4px}
+#modal-card input{width:100%;font-size:13px;padding:8px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);outline:none}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.modal-actions button{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);cursor:pointer;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary)}
+.modal-actions .primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:transparent}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <i class="ti ti-notebook" style="font-size:16px;color:var(--color-text-secondary)"></i>
+        <span style="font-size:15px;font-weight:500;color:var(--color-text-primary)">Notebook</span>
+      </div>
+      <div class="hdr-row">
+        <button id="new-note-btn"><i class="ti ti-plus"></i> New note</button>
+        <button id="cfg-btn" title="Server settings"><i class="ti ti-settings"></i></button>
+      </div>
+    </div>
+    <div id="search-wrap">
+      <i class="ti ti-search" style="color:var(--color-text-tertiary);font-size:14px"></i>
+      <input id="search-input" type="text" placeholder="Search notes…">
+    </div>
+    <div id="notes-list"></div>
+  </div>
+
+  <div id="editor-pane">
+    <div id="no-note">
+      <i class="ti ti-file-text"></i>
+      <span>Select a note or create one</span>
+    </div>
+    <div id="editor-ui" style="display:none;flex-direction:column;flex:1;min-height:0">
+      <div id="editor-toolbar">
+        <input id="note-title-input" type="text" placeholder="Note title…">
+        <button id="delete-btn" title="Delete note"><i class="ti ti-trash"></i></button>
+      </div>
+      <div id="format-bar">
+        <button class="fmt-btn" data-cmd="bold" style="font-weight:700">B</button>
+        <button class="fmt-btn" data-cmd="italic" style="font-style:italic">I</button>
+        <button class="fmt-btn" data-cmd="underline" style="text-decoration:underline">U</button>
+        <div class="vsep"></div>
+        <button class="fmt-btn" data-cmd="insertUnorderedList"><i class="ti ti-list" style="font-size:14px"></i></button>
+        <button class="fmt-btn" data-cmd="insertOrderedList"><i class="ti ti-list-numbers" style="font-size:14px"></i></button>
+        <div class="vsep"></div>
+        <button class="fmt-btn" data-cmd="formatBlock" data-val="h2" style="font-weight:500">H</button>
+        <button class="fmt-btn" data-cmd="formatBlock" data-val="blockquote"><i class="ti ti-quote" style="font-size:14px"></i></button>
+        <div class="vsep"></div>
+        <button class="fmt-btn" data-cmd="undo"><i class="ti ti-arrow-back-up" style="font-size:14px"></i></button>
+        <button class="fmt-btn" data-cmd="redo"><i class="ti ti-arrow-forward-up" style="font-size:14px"></i></button>
+      </div>
+      <div id="note-body" contenteditable="true"></div>
+      <div id="status-bar">
+        <span style="display:flex;align-items:center">
+          <span id="status-dot"></span>
+          <span id="status-msg">Connecting…</span>
+        </span>
+        <span id="word-count">0 words</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-backdrop">
+    <div id="modal-card">
+      <h3>Server settings</h3>
+      <p>Point to your running Express server.<br>Default: <code>http://localhost:3001</code></p>
+      <label for="url-input">API base URL</label>
+      <input id="url-input" type="text" value="http://localhost:3001">
+      <div class="modal-actions">
+        <button id="modal-cancel">Cancel</button>
+        <button class="primary" id="modal-save">Save & reconnect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let BASE = localStorage.getItem('nb_url') || 'http://localhost:3001';
+let notes = [], activeId = null, saveTimer = null;
+const $ = id => document.getElementById(id);
+const body = $('note-body');
+
+function setStatus(msg, state) {
+  $('status-msg').textContent = msg;
+  $('status-dot').className = state || '';
+}
+function uid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+function relTime(d) {
+  const s = (Date.now() - d) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  const D = new Date(d), N = new Date();
+  if (D.toDateString() === N.toDateString()) return D.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  return D.toLocaleDateString([], {month:'short', day:'numeric'});
+}
+function plain(html) { const d = document.createElement('div'); d.innerHTML = html; return d.textContent || ''; }
+function wc(html) { const t = plain(html).trim(); return t ? t.split(/\s+/).filter(Boolean).length : 0; }
+async function apiFetch(path, opts={}) {
+  return fetch(BASE + path, { headers:{'Content-Type':'application/json'}, ...opts });
+}
+async function loadNotes() {
+  setStatus('Connecting…', '');
+  try {
+    const r = await apiFetch('/notes');
+    if (!r.ok) throw new Error();
+    notes = await r.json();
+    renderList();
+    const sorted = [...notes].sort((a,b) => b.updated - a.updated);
+    if (sorted.length) openNote(sorted[0].id);
+    setStatus('Connected — ' + notes.length + ' note' + (notes.length !== 1 ? 's' : ''), 'ok');
+  } catch {
+    setStatus('Cannot reach server', 'err');
+    renderList();
+  }
+}
+function renderList(q='') {
+  q = q.toLowerCase();
+  const filtered = notes
+    .filter(n => n.title.toLowerCase().includes(q) || plain(n.body).toLowerCase().includes(q))
+    .sort((a,b) => b.updated - a.updated);
+  const list = $('notes-list');
+  if (!filtered.length) { list.innerHTML = '<div class="empty-state">'+(q?'No results':'No notes yet')+'</div>'; return; }
+  list.innerHTML = filtered.map(n => `
+    <div class="note-item${n.id===activeId?' active':''}" data-id="${n.id}">
+      <div class="ni-title">${n.title||'Untitled'}</div>
+      <div class="ni-preview">${plain(n.body).slice(0,55)||'Empty note'}</div>
+      <div class="ni-date">${relTime(n.updated)}</div>
+    </div>`).join('');
+  list.querySelectorAll('.note-item').forEach(el => el.addEventListener('click', () => openNote(el.dataset.id)));
+}
+function openNote(id) {
+  const n = notes.find(x => x.id === id); if (!n) return;
+  activeId = id;
+  $('no-note').style.display = 'none';
+  $('editor-ui').style.display = 'flex';
+  $('note-title-input').value = n.title;
+  body.innerHTML = n.body;
+  updateWC(); renderList($('search-input').value);
+}
+function getActive() { return notes.find(x => x.id === activeId); }
+function scheduleSave() {
+  setStatus('Saving…', 'saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const n = getActive(); if (!n) return;
+    try {
+      const r = await apiFetch('/notes/' + n.id, { method:'PUT', body:JSON.stringify(n) });
+      if (!r.ok) throw new Error();
+      setStatus('Saved', 'ok');
+    } catch { setStatus('Save failed', 'err'); }
+  }, 700);
+}
+function updateWC() { $('word-count').textContent = (getActive() ? wc(getActive().body) : 0) + ' words'; }
+$('new-note-btn').addEventListener('click', async () => {
+  const n = { id:uid(), title:'Untitled', body:'', updated:Date.now() };
+  try {
+    const r = await apiFetch('/notes', { method:'POST', body:JSON.stringify(n) });
+    if (!r.ok) throw new Error();
+    notes.unshift(n); openNote(n.id); renderList($('search-input').value);
+    setTimeout(() => $('note-title-input').select(), 50);
+    setStatus('Note created', 'ok');
+  } catch { setStatus('Create failed', 'err'); }
+});
+$('note-title-input').addEventListener('input', e => {
+  const n = getActive(); if (!n) return;
+  n.title = e.target.value; n.updated = Date.now();
+  scheduleSave(); renderList($('search-input').value);
+});
+body.addEventListener('input', () => {
+  const n = getActive(); if (!n) return;
+  n.body = body.innerHTML; n.updated = Date.now();
+  scheduleSave(); renderList($('search-input').value); updateWC();
+});
+$('delete-btn').addEventListener('click', async () => {
+  if (!activeId || !confirm('Delete this note?')) return;
+  try {
+    const r = await apiFetch('/notes/' + activeId, { method:'DELETE' });
+    if (!r.ok) throw new Error();
+    notes = notes.filter(x => x.id !== activeId); activeId = null;
+    $('editor-ui').style.display = 'none'; $('no-note').style.display = 'flex';
+    renderList($('search-input').value);
+    const s = [...notes].sort((a,b) => b.updated - a.updated);
+    if (s.length) openNote(s[0].id);
+    setStatus('Note deleted', 'ok');
+  } catch { setStatus('Delete failed', 'err'); }
+});
+$('search-input').addEventListener('input', e => renderList(e.target.value));
+document.querySelectorAll('.fmt-btn[data-cmd]').forEach(btn => {
+  btn.addEventListener('mousedown', e => {
+    e.preventDefault();
+    document.execCommand(btn.dataset.cmd, false, btn.dataset.val || null);
+    body.focus();
+  });
+});
+$('cfg-btn').addEventListener('click', () => { $('url-input').value = BASE; $('modal-backdrop').classList.add('open'); });
+$('modal-cancel').addEventListener('click', () => $('modal-backdrop').classList.remove('open'));
+$('modal-save').addEventListener('click', () => {
+  BASE = $('url-input').value.replace(/\/$/,'');
+  localStorage.setItem('nb_url', BASE);
+  $('modal-backdrop').classList.remove('open');
+  loadNotes();
+});
+loadNotes();
+</script>
+</body>
+</html>
